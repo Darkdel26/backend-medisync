@@ -16,11 +16,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-# IMPORTANT: éviter crash Laravel pendant build
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+# 🔥 FIX CRITIQUE Laravel
+RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views
 
-RUN php artisan config:clear || true
-RUN php artisan cache:clear || true
+RUN chmod -R 777 bootstrap storage
+
+# installer sans crash strict
+RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts
+
+# exécuter artisan APRÈS préparation
+RUN php artisan package:discover || true
 
 EXPOSE 10000
 
