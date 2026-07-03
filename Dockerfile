@@ -6,15 +6,19 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    libzip-dev
+    libzip-dev \
+    libpng-dev \
+    libonig-dev
 
-RUN docker-php-ext-install pdo pdo_mysql zip
-
-COPY . .
+RUN docker-php-ext-install pdo pdo_mysql zip mbstring
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN composer install --no-dev --optimize-autoloader
+COPY . .
+
+RUN composer install --no-interaction --no-dev --optimize-autoloader || true
+
+RUN php artisan config:clear || true
 
 EXPOSE 10000
 
