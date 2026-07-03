@@ -16,9 +16,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-RUN composer install --no-interaction --no-dev --optimize-autoloader || true
+# IMPORTANT: éviter crash Laravel pendant build
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 RUN php artisan config:clear || true
+RUN php artisan cache:clear || true
 
 EXPOSE 10000
 
